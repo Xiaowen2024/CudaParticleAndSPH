@@ -4,7 +4,28 @@ project(hw2_1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
-find_package(OpenMP REQUIRED)
+find_package(OpenMP QUIET)
+if (NOT OpenMP_CXX_FOUND)
+    if (APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        find_path(OPENMP_INCLUDE_DIR omp.h
+                PATHS /opt/homebrew/opt/libomp/include /usr/local/opt/libomp/include)
+        find_library(OPENMP_LIBRARY omp
+                PATHS /opt/homebrew/opt/libomp/lib /usr/local/opt/libomp/lib)
+
+        if (OPENMP_INCLUDE_DIR AND OPENMP_LIBRARY)
+            add_library(OpenMP::OpenMP_CXX INTERFACE IMPORTED)
+            set_target_properties(OpenMP::OpenMP_CXX PROPERTIES
+                    INTERFACE_COMPILE_OPTIONS "-Xpreprocessor;-fopenmp"
+                    INTERFACE_INCLUDE_DIRECTORIES "${OPENMP_INCLUDE_DIR}"
+                    INTERFACE_LINK_LIBRARIES "${OPENMP_LIBRARY}")
+        else ()
+            message(FATAL_ERROR
+                    "OpenMP was not found. Install libomp with Homebrew, then rerun CMake.")
+        endif ()
+    else ()
+        find_package(OpenMP REQUIRED)
+    endif ()
+endif ()
 
 # Group number
 set(GROUP_NAME "None" CACHE STRING "Your group name as it appears on bCourses (no spaces)")

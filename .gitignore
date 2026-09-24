@@ -1,3 +1,9 @@
 build/
 .idea/
 cmake-build-*/
+gpu.txt
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+.DS_Store
+.upstream-git-backups/
